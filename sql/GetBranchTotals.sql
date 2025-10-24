@@ -46,6 +46,7 @@ BEGIN
         AND l.CreationDate BETWEEN @StartDate AND @EndDate
     WHERE (	@BranchID IS NULL			--if no BranchID provided = always true, meaning bring it all in
 			OR o.OfficeID = @BranchID)  --if BranchID provided, filter to only that branch
+		 AND (o.IsBranch = 1)			--only include branches, not headquarters or admin office
     GROUP BY o.OfficeID, o.Name
     ORDER BY o.Name;
 END;
