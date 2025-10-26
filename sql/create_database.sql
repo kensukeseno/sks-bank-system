@@ -137,6 +137,7 @@ CREATE TABLE Loan
 	OfficeID INT NOT NULL,
 	LoanAmount MONEY NOT NULL,
 	InterestRate DECIMAL(5,2) NOT NULL,
+	CreationDate DATETIME DEFAULT GETDATE(),
 	FOREIGN KEY (OfficeID) REFERENCES Office (OfficeID)
 )
 		
