@@ -100,6 +100,7 @@ CREATE TABLE Account
 	LastAccessed DATETIME,
 	InterestRate DECIMAL(5,2),
 	CreationDate DATETIME DEFAULT GETDATE(),
+	OverdraftDailyFee MONEY NOT NULL DEFAULT 10 CHECK (OverdraftDailyFee >= 0),
 	FOREIGN KEY (OfficeID) REFERENCES Office (OfficeID),
 	FOREIGN KEY (AccountTypeID) REFERENCES AccountType (AccountTypeID)
 )
@@ -127,7 +128,7 @@ CREATE TABLE Overdraft
 (
 	OverdraftID INT IDENTITY(1, 1) PRIMARY KEY,
 	TransactionID INT NOT NULL,
-	OverdraftAmount MONEY NOT NULL,
+	OverdraftAmount MONEY NOT NULL CHECK (OverdraftAmount BETWEEN 0 AND 1000),
 	FOREIGN KEY (TransactionID) REFERENCES BankTransaction (TransactionID)
 )
 
@@ -138,6 +139,7 @@ CREATE TABLE Loan
 	LoanAmount MONEY NOT NULL,
 	InterestRate DECIMAL(5,2) NOT NULL,
 	CreationDate DATETIME DEFAULT GETDATE(),
+	DueDate DATETIME DEFAULT DATEADD(MONTH, 1, GETDATE()),
 	FOREIGN KEY (OfficeID) REFERENCES Office (OfficeID)
 )
 		
