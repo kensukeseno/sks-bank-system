@@ -1,5 +1,5 @@
 /* ________________________________________________________________________________
-Procedure:   EmployeeSummary
+Procedure:   GetEmployeeSummary
 Parameters:
     @BranchID INT = NULL  
         Optional. If NULL, returns results for all branches; 
@@ -21,11 +21,11 @@ Returns:
         - CustomersServed
 
 Sample usage:
-    EXEC EmployeeSummary;               -- All branches
-    EXEC EmployeeSummary @BranchID = 2; -- Only branch #2
+    EXEC GetEmployeeSummary;               -- All branches
+    EXEC GetEmployeeSummary @BranchID = 2; -- Only branch #2
 ________________________________________________________________________________*/
 
-CREATE OR ALTER PROCEDURE EmployeeSummary
+CREATE OR ALTER PROCEDURE GetEmployeeSummary
     @BranchID INT = NULL   -- optional: NULL = all branches
 AS
 BEGIN
@@ -60,4 +60,5 @@ BEGIN
         CustomersServed DESC, EmployeeName;
 END;
 GO
+
 
