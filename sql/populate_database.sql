@@ -1,3 +1,13 @@
+/**************************************************
+
+	DATA2201:Relational Databases-25SEPMNOS3
+	GROUP B
+	Andrei Laqui
+	Heather Howse
+	Ken Seno
+
+****************************************************/
+
 USE SKSNationalBank;
 -- These queries were generated ChatGPT, expanded using Copilot AI.
 
