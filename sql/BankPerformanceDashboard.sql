@@ -23,7 +23,7 @@ Sample usage:
     EXEC GetBankPerformanceDashboard;
 ________________________________________________________________________________*/
 
-CREATE OR ALTER PROCEDURE [dbo].[GetBankPerformanceDashboard]
+CREATE OR ALTER PROCEDURE GetBankPerformanceDashboard
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -62,3 +62,4 @@ BEGIN
     ORDER BY o.OfficeID;
 END;
 GO
+
