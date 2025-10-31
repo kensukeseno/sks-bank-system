@@ -12,7 +12,6 @@ GO
 
 USE SKSNationalBank;
 
--- Create all tables based on your design. 
 -- Create the appropriate primary and foreign keys. 
 -- Create the appropriate constraints and relationships. 
 CREATE TABLE Address
@@ -101,8 +100,7 @@ CREATE TABLE Account
 	LastAccessed DATETIME,
 	InterestRate DECIMAL(5,2) DEFAULT 0,
 	CreationDate DATETIME DEFAULT GETDATE(),
-	OverdraftDailyFee MONEY NOT NULL DEFAULT 10 CHECK (OverdraftDailyFee >= 0),
-	FOREIGN KEY (OfficeID) REFERENCES Office (OfficeID),
+    	FOREIGN KEY (OfficeID) REFERENCES Office (OfficeID),
 	FOREIGN KEY (AccountTypeID) REFERENCES AccountType (AccountTypeID)
 )
 
