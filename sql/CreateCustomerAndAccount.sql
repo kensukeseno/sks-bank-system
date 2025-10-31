@@ -24,7 +24,7 @@ Returns:
         - AccountID
 
 Sample usage:
-    EXEC CreateCustomerWithAccount 
+    EXEC CreateCustomerAndAccount 
         @FirstName = 'Jane',
         @LastName = 'Doe',
         @Email = 'jane.doe@email.com',
@@ -100,3 +100,4 @@ BEGIN
     END CATCH
 END;
 GO
+
