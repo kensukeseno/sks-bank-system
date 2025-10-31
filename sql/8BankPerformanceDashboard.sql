@@ -1,5 +1,5 @@
 /* ________________________________________________________________________________
-Procedure:   GetBankPerformanceDashboard
+Procedure:   BankPerformanceDashboard
 Parameters:
     None
 
@@ -20,10 +20,10 @@ Returns:
         - LDR (%)         (Loan-to-Deposit Ratio, a key performance metric)
 
 Sample usage:
-    EXEC GetBankPerformanceDashboard;
+    EXEC BankPerformanceDashboard;
 ________________________________________________________________________________*/
 
-CREATE OR ALTER PROCEDURE GetBankPerformanceDashboard
+CREATE OR ALTER PROCEDURE BankPerformanceDashboard
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -62,4 +62,5 @@ BEGIN
     ORDER BY o.OfficeID;
 END;
 GO
+
 
