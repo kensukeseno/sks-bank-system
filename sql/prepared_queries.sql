@@ -28,7 +28,7 @@ Returns:
 	One row per Branch, with name, ID, and  the total deposits and total loans within the month selected
 Sample usage:
     EXEC GetBranchTotals 0, 3;								Current month, Branch 3
-	EXEC GetBranchTotals @BranchID = 9;						Current month, Branch 9
+	EXEC GetBranchTotals @BranchID = 3;						Current month, Branch 9
     EXEC GetBranchTotals @MonthOffset = 1, @BranchID = 5;	Last month, Branch 5
     EXEC GetBranchTotals @MonthOffset = 2;					Two months ago, all branches
 ________________________________________________________________________________*/
@@ -38,33 +38,46 @@ CREATE OR ALTER PROCEDURE GetBranchTotals
     @BranchID INT = NULL        -- optional : NULL = all office/branches, or pass a specific OfficeID
 AS
 BEGIN
-    -- Calculate the start and end of the target month
-    DECLARE @StartDate DATE, @EndDate DATE;
-		-- Start of month = first day of current month minus n months in the past
-		SET @StartDate = DATEADD(MONTH, -@MonthOffset, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1));
-		-- End of month = last day of that month, EOMONTH saves us from guessing 31st, 30th, 28th, 29th !super helpful!
-		SET @EndDate = EOMONTH(@StartDate);
 
-	-- from each office, get the accounts and the loans, owner doesn't matter
-	-- used sum to add the balance/deposits together, and add loan amounts together
-	-- used left join to let offices with no accounts nor loans on that month still appear
-    SELECT 
-        o.OfficeID,
-        o.Name AS BranchName,
-        SUM(CASE WHEN a.AccountID IS NOT NULL THEN a.Balance ELSE 0 END) AS TotalDeposits,
-        SUM(CASE WHEN l.LoanID IS NOT NULL THEN l.LoanAmount ELSE 0 END) AS TotalLoans
-    FROM Office o
-    LEFT JOIN Account a 
-        ON o.OfficeID = a.OfficeID
-        AND a.CreationDate BETWEEN @StartDate AND @EndDate
-    LEFT JOIN Loan l 
-        ON o.OfficeID = l.OfficeID
-        AND l.CreationDate BETWEEN @StartDate AND @EndDate
-    WHERE (	@BranchID IS NULL			--if no BranchID provided = always true, meaning bring it all in
-			OR o.OfficeID = @BranchID)  --if BranchID provided, filter to only that branch
-		 AND (o.IsBranch = 1)			--only include branches, not headquarters or admin office
-    GROUP BY o.OfficeID, o.Name
-    ORDER BY o.Name;
+	BEGIN TRY
+		IF NOT EXISTS (SELECT 1 FROM Office WHERE OfficeID = @BranchID AND IsBranch = 1)
+		BEGIN
+			THROW 50001, 'Invalid OfficeID or not a branch.', 1;
+		END
+
+		-- Calculate the start and end of the target month
+		DECLARE @StartDate DATE, @EndDate DATE;
+			-- Start of month = first day of current month minus n months in the past
+			SET @StartDate = DATEADD(MONTH, -@MonthOffset, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1));
+			-- End of month = last day of that month, EOMONTH saves us from guessing 31st, 30th, 28th, 29th !super helpful!
+			SET @EndDate = EOMONTH(@StartDate);
+
+		-- from each office, get the accounts and the loans, owner doesn't matter
+		-- used sum to add the balance/deposits together, and add loan amounts together
+		-- used left join to let offices with no accounts nor loans on that month still appear
+		SELECT 
+			o.OfficeID,
+			o.Name AS BranchName,
+			SUM(CASE WHEN a.AccountID IS NOT NULL THEN a.Balance ELSE 0 END) AS TotalDeposits,
+			SUM(CASE WHEN l.LoanID IS NOT NULL THEN l.LoanAmount ELSE 0 END) AS TotalLoans
+		FROM Office o
+		LEFT JOIN Account a 
+			ON o.OfficeID = a.OfficeID
+			AND a.CreationDate BETWEEN @StartDate AND @EndDate
+		LEFT JOIN Loan l 
+			ON o.OfficeID = l.OfficeID
+			AND l.CreationDate BETWEEN @StartDate AND @EndDate
+		WHERE (	@BranchID IS NULL			--if no BranchID provided = always true, meaning bring it all in
+				OR o.OfficeID = @BranchID)  --if BranchID provided, filter to only that branch
+			 AND (o.IsBranch = 1)			--only include branches, not headquarters or admin office
+		GROUP BY o.OfficeID, o.Name
+		ORDER BY o.Name;
+	END TRY
+
+	BEGIN CATCH
+		THROW;
+    END CATCH
+
 END;
 GO
 
@@ -82,7 +95,7 @@ Returns:     Two rows:
              - Row 1: Account summary (AccountList, TotalBalance)
              - Row 2: Loan summary (LoanList, TotalLoanAmount)
 Sample usage:
-    EXEC GetCustomerFinancialSummary @CustomerID = 11;
+    EXEC GetCustomerSummary @CustomerID = 11;
 ________________________________________________________________________________ */
 
 CREATE OR ALTER PROCEDURE GetCustomerSummary
@@ -94,7 +107,7 @@ BEGIN
     -- Row 1: Account summary
     SELECT 
         'Accounts' AS Category,
-        STRING_AGG(FORMAT(a.AccountID, '00000000'), ', ') AS IDList, -- STRING_AGG lists values into a string, in thsi case separated by commas
+        STRING_AGG(FORMAT(a.AccountID, '00000000'), ', ') AS AccountIDList, -- STRING_AGG lists values into a string, in thsi case separated by commas
         SUM(a.Balance) AS TotalAmount
     FROM AccountOwner ao
     INNER JOIN Account a ON ao.AccountID = a.AccountID
@@ -381,7 +394,7 @@ BEGIN
         DECLARE @PersonalBankerID INT;
         SELECT TOP 1 @PersonalBankerID = EmployeeID
         FROM Employee
-        WHERE EmployeeRole = 'PersonalBanker'
+        WHERE EmployeeRole = 'Personal Banker'
         ORDER BY NEWID();
 
         /* Create a new Customer record */
