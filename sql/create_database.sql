@@ -1,3 +1,13 @@
+/**************************************************
+
+	DATA2201:Relational Databases-25SEPMNOS3
+	GROUP B
+	Andrei Laqui
+	Heather Howse
+	Ken Seno
+
+****************************************************/
+
 -- Delete the database if it already exists.
 IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'SKSNationalBank')
 BEGIN
