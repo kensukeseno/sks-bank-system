@@ -1,7 +1,6 @@
 CREATE PROCEDURE CreateCustomerWithAccount
     @FirstName NVARCHAR(50),
     @LastName NVARCHAR(50),
-    @DOB DATE,
     @Email NVARCHAR(100),
     @Phone NVARCHAR(20),
     @AccountTypeName NVARCHAR(50), -- 'Chequing' or 'Savings'
@@ -13,7 +12,7 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        -- 1. Automatically select a personal banker (random)
+        -- 1. Select a random personal banker
         DECLARE @PersonalBankerID INT;
         SELECT TOP 1 @PersonalBankerID = EmployeeID
         FROM Employee
@@ -21,12 +20,12 @@ BEGIN
         ORDER BY NEWID();
 
         -- 2. Insert new customer
-        INSERT INTO Customer (FirstName, LastName, DOB, Email, Phone, PersonalBankerID)
-        VALUES (@FirstName, @LastName, @DOB, @Email, @Phone, @PersonalBankerID);
+        INSERT INTO Customer (FirstName, LastName, Email, Phone, PersonalBankerID)
+        VALUES (@FirstName, @LastName, @Email, @Phone, @PersonalBankerID);
 
         DECLARE @NewCustomerID INT = SCOPE_IDENTITY();
 
-        -- 3. Get AccountTypeID from AccountType table
+        -- 3. Get AccountTypeID
         DECLARE @AccountTypeID INT;
         SELECT @AccountTypeID = AccountTypeID
         FROM AccountType
@@ -40,15 +39,22 @@ BEGIN
         END
 
         -- 4. Insert new account
-        INSERT INTO Account (CustomerID, AccountTypeID, Balance)
-        VALUES (@NewCustomerID, @AccountTypeID, @InitialBalance);
+        INSERT INTO Account (AccountTypeID, Balance)
+        VALUES (@AccountTypeID, @InitialBalance);
+
+        DECLARE @NewAccountID INT = SCOPE_IDENTITY();
+
+        -- 5. Link customer and account
+        INSERT INTO AccountOwner (AccountID, CustomerID)
+        VALUES (@NewAccountID, @NewCustomerID);
 
         COMMIT TRANSACTION;
 
         SELECT 
             @NewCustomerID AS CustomerID,
             @PersonalBankerID AS PersonalBankerID,
-            @AccountTypeID AS AccountTypeID;
+            @AccountTypeID AS AccountTypeID,
+            @NewAccountID AS AccountID;
 
     END TRY
     BEGIN CATCH
