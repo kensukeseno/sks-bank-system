@@ -7,10 +7,11 @@ Parameters:
     @Phone NVARCHAR(20)           – Customer's phone number
     @AccountTypeName NVARCHAR(50) – Account type name ('Chequing' or 'Savings')
     @InitialBalance DECIMAL(18,2) – Starting account balance
+    @OfficeID INT                 – Branch office where the account is created (must be a valid branch)
 
 What for:
     Creates a new customer record, automatically assigns them to a personal banker, 
-    opens a new bank account, and links both records together in the database.
+    opens a new bank account at a specific branch, and links both records together.
 
 For who:
     Used by bank staff or onboarding systems when registering new customers 
@@ -22,6 +23,7 @@ Returns:
         - PersonalBankerID
         - AccountTypeID
         - AccountID
+        - OfficeID
 
 Sample usage:
     EXEC CreateCustomerAndAccount 
@@ -30,7 +32,8 @@ Sample usage:
         @Email = 'jane.doe@email.com',
         @Phone = '555-0123',
         @AccountTypeName = 'Chequing',
-        @InitialBalance = 500.00;
+        @InitialBalance = 500.00,
+        @OfficeID = 3;
 ________________________________________________________________________________*/
 
 CREATE OR ALTER PROCEDURE CreateCustomerAndAccount
@@ -38,8 +41,9 @@ CREATE OR ALTER PROCEDURE CreateCustomerAndAccount
     @LastName NVARCHAR(50),
     @Email NVARCHAR(100),
     @Phone NVARCHAR(20),
-    @AccountTypeName NVARCHAR(50), -- 'Chequing' or 'Savings'
-    @InitialBalance DECIMAL(18,2)
+    @AccountTypeName NVARCHAR(50),
+    @InitialBalance DECIMAL(18,2),
+    @OfficeID INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -47,20 +51,28 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        /* Randomly assign a Personal Banker to the new customer*/
+        /* Validate that the OfficeID belongs to a branch */
+        IF NOT EXISTS (SELECT 1 FROM Office WHERE OfficeID = @OfficeID AND IsBranch = 1)
+        BEGIN
+            RAISERROR('Invalid OfficeID: must correspond to an existing branch.', 16, 1);
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+
+        /* Randomly assign a Personal Banker to the new customer */
         DECLARE @PersonalBankerID INT;
         SELECT TOP 1 @PersonalBankerID = EmployeeID
         FROM Employee
         WHERE EmployeeRole = 'PersonalBanker'
         ORDER BY NEWID();
 
-        /* Create a new Customer record*/
+        /* Create a new Customer record */
         INSERT INTO Customer (FirstName, LastName, Email, Phone)
         VALUES (@FirstName, @LastName, @Email, @Phone);
 
         DECLARE @NewCustomerID INT = SCOPE_IDENTITY();
 
-        /*Retrieve the AccountTypeID from input*/
+        /* Retrieve the AccountTypeID based on input */
         DECLARE @AccountTypeID INT;
         SELECT @AccountTypeID = AccountTypeID
         FROM AccountType
@@ -73,31 +85,30 @@ BEGIN
             RETURN;
         END
 
-        /* Create a new Account for the customer*/
-        INSERT INTO Account (AccountTypeID, Balance)
-        VALUES (@AccountTypeID, @InitialBalance);
+        /* Create a new Account assigned to the specified branch */
+        INSERT INTO Account (AccountTypeID, Balance, OfficeID)
+        VALUES (@AccountTypeID, @InitialBalance, @OfficeID);
 
         DECLARE @NewAccountID INT = SCOPE_IDENTITY();
 
-        /* Link the Customer to the Account through AccountOwner*/
+        /* Link the Customer to the Account */
         INSERT INTO AccountOwner (AccountID, CustomerID)
         VALUES (@NewAccountID, @NewCustomerID);
 
-        /*Commit the transaction and return created IDs*/
+        /* Commit transaction and return new record identifiers */
         COMMIT TRANSACTION;
 
         SELECT 
             @NewCustomerID AS CustomerID,
             @PersonalBankerID AS PersonalBankerID,
             @AccountTypeID AS AccountTypeID,
-            @NewAccountID AS AccountID;
+            @NewAccountID AS AccountID,
+            @OfficeID AS OfficeID;
 
     END TRY
     BEGIN CATCH
-        /* Roll back and rethrow the error for debugging */
         ROLLBACK TRANSACTION;
         THROW;
     END CATCH
 END;
 GO
-
