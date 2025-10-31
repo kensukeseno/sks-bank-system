@@ -31,6 +31,7 @@ CREATE OR ALTER PROCEDURE CreateLoanForCustomer
 	@NewLoanID INT OUTPUT		-- newwly created Loan ID as output parameter
 AS
 BEGIN
+    SET NOCOUNT ON;
 
     BEGIN TRY
         BEGIN TRANSACTION;
@@ -75,4 +76,5 @@ BEGIN
 		THROW;
     END CATCH
 END;
+
 
