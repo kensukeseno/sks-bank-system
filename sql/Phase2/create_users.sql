@@ -111,7 +111,7 @@ INSERT INTO Loan (OfficeID, LoanAmount, InterestRate, CreationDate, DueDate)
 VALUES
 (1, 50000.00, 5.0, GETDATE(), DATEADD(MONTH, 1, GETDATE()));
 -- Insert LoanPayment table
-INSERT INTO LoanPayment (LoanID, PaymentDate, AmountPaid
+INSERT INTO LoanPayment (LoanID, PaymentDate, AmountPaid)
 VALUES
 (1, '2025-10-01', 1000.00);
 
