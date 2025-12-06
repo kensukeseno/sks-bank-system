@@ -90,27 +90,27 @@ SELECT * FROM LoanHolder;
 SELECT * FROM Loan;
 SELECT * FROM LoanPayment;
 
--- Insert Account table
+-- Insert a row into Account table
 INSERT INTO Account (OfficeID, AccountTypeID, Balance, LastAccessed, InterestRate, CreationDate)
 VALUES
 (1, 1, 2000.00, '2025-10-10', 2.0, DATEADD(MONTH, -3, GETDATE()));
--- Insert AccountOwner table
+-- Insert a row into AccountOwner table
 INSERT INTO AccountOwner (AccountID, CustomerID)
 VALUES
 (1, 1);
--- Insert BankTransaction table
+-- Insert a row into BankTransaction table
 INSERT INTO BankTransaction (AccountID, Amount, TransactionDate, TransactionType)
 VALUES
 (1, 500.00, '2025-10-10', 'Deposit');
--- Insert Overdraft table
+-- Insert a row into Overdraft table
 INSERT INTO Overdraft (TransactionID, OverdraftAmount)
 VALUES
 (2, 50.00);
--- Insert Loan table
+-- Insert a row into Loan table
 INSERT INTO Loan (OfficeID, LoanAmount, InterestRate, CreationDate, DueDate)
 VALUES
 (1, 50000.00, 5.0, GETDATE(), DATEADD(MONTH, 1, GETDATE()));
--- Insert LoanPayment table
+-- Insert a row into LoanPayment table
 INSERT INTO LoanPayment (LoanID, PaymentDate, AmountPaid)
 VALUES
 (1, '2025-10-01', 1000.00);
