@@ -1,3 +1,13 @@
+/**************************************************
+
+	DATA2201:Relational Databases-25SEPMNOS3
+	GROUP B
+	Andrei Laqui
+	Heather Howse
+	Ken Seno
+
+****************************************************/
+
 CREATE TABLE Audit
 (
     AuditID INT IDENTITY(1,1) PRIMARY KEY,

@@ -1,3 +1,13 @@
+/**************************************************
+
+	DATA2201:Relational Databases-25SEPMNOS3
+	GROUP B
+	Andrei Laqui
+	Heather Howse
+	Ken Seno
+
+****************************************************/
+
 USE SKSNationalBank;
 
 -- Add an error column with JSON data type to the BankTransaction table

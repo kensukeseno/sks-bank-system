@@ -1,3 +1,13 @@
+/**************************************************
+
+	DATA2201:Relational Databases-25SEPMNOS3
+	GROUP B
+	Andrei Laqui
+	Heather Howse
+	Ken Seno
+
+****************************************************/
+
 /* Create a login and user named Ågcustomer_group_B*/
 -- Create a login
 CREATE LOGIN customer_group_B WITH PASSWORD = 'customer',
