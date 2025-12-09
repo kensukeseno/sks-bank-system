@@ -24,6 +24,9 @@ GRANT SELECT ON Customer TO customer_group_B;
 GRANT SELECT ON Address TO customer_group_B;
 GRANT SELECT ON AccountOwner TO customer_group_B;
 GRANT SELECT ON Account TO customer_group_B;
+GRANT SELECT ON AccountType TO customer_group_B;
+GRANT SELECT ON BankTransaction TO customer_group_B;
+GRANT SELECT ON Overdraft TO customer_group_B;
 GRANT SELECT ON LoanHolder TO customer_group_B;
 GRANT SELECT ON Loan TO customer_group_B;
 GRANT SELECT ON LoanPayment TO customer_group_B;
@@ -35,6 +38,9 @@ SELECT * FROM Customer;
 SELECT * FROM Address;
 SELECT * FROM AccountOwner;
 SELECT * FROM Account;
+SELECT * FROM AccountType;
+SELECT * FROM BankTransaction;
+SELECT * FROM Overdraft;
 SELECT * FROM LoanHolder;
 SELECT * FROM Loan;
 SELECT * FROM LoanPayment;
@@ -75,6 +81,9 @@ ON Overdraft
 TO accountant_group_B;
 DENY UPDATE, INSERT, DELETE
 ON Loan
+TO accountant_group_B;
+DENY UPDATE, INSERT, DELETE
+ON LoanHolder
 TO accountant_group_B;
 DENY UPDATE, INSERT, DELETE
 ON LoanPayment
@@ -120,6 +129,10 @@ VALUES
 INSERT INTO Loan (OfficeID, LoanAmount, InterestRate, CreationDate, DueDate)
 VALUES
 (1, 50000.00, 5.0, GETDATE(), DATEADD(MONTH, 1, GETDATE()));
+-- Insert a row into LoanHolder table
+INSERT INTO LoanHolder (LoanID, CustomerID)
+VALUES
+(2, 3);
 -- Insert a row into LoanPayment table
 INSERT INTO LoanPayment (LoanID, PaymentDate, AmountPaid)
 VALUES
